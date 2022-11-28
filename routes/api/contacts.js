@@ -32,7 +32,6 @@ router.get('/:contactId', async (req, res, next) => {
     const contact = await getContactById(contactId);
     if(!contact) {
       const error = new Error(`Contact with id=${contactId} not found`);
-      console.log(error.status)
       error.status = 404;
       throw error;
     }
@@ -47,14 +46,12 @@ router.get('/:contactId', async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-  
 });
 
 router.post('/', async (req, res, next) => {
   try {
     const { error } = contactsSchema.validate(req.body);
     if (error) {
-        const error = new Error('missing required name field');
         error.status = 400;
         throw error;
     }
@@ -80,7 +77,6 @@ router.delete('/:contactId', async (req, res, next) => {
     const deleteContact = await removeContact(contactId);
     if(!deleteContact) {
       const error = new Error(`Contact with id=${contactId} not found`);
-      console.log(error.status)
       error.status = 404;
       throw error;
     }
@@ -95,14 +91,12 @@ router.delete('/:contactId', async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-  
 });
 
 router.put('/:contactId', async (req, res, next) => {
   try {
-    const {error} = contactsSchema.validate(req.body);
+    const { error } = contactsSchema.validate(req.body);
     if(error){
-      const error = new Error('Missing fields');
         error.status = 400;
         throw error;
     }
@@ -110,16 +104,15 @@ router.put('/:contactId', async (req, res, next) => {
     const updateDataContact = await updateContact(contactId, req.body);
     if(!updateDataContact) {
       const error = new Error(`Contact with id=${contactId} not found`);
-      console.log(error.status)
       error.status = 404;
       throw error;
     }
     res.json({ 
       status: "success",
       code: 200,
-      message: `Contact update`,
+      message: `Contact ${req.body.name} update`,
       data: {
-        updateDataContact
+        result: updateDataContact
       }
       })
   } catch (error) {
