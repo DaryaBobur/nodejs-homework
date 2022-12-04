@@ -1,15 +1,8 @@
-const contactsSchema = require('../schemas/contact');
-const {
-  listContacts,
-  getContactById,
-  removeContact,
-  addContact,
-  updateContact,
-} = require('../models/contacts');
+const { Contact, joiSchema, statusJoiSchema } = require('../models/contact');
 
-const listContactsController = async (req, res, next) => {
+const listContacts = async (req, res, next) => {
   try {
-    const contacts = await listContacts();
+    const contacts = await Contact.find({});
     res.json({
       status: 'success',
       code: 200,
@@ -23,10 +16,10 @@ const listContactsController = async (req, res, next) => {
   }
 };
 
-const getContactByIdController = async (req, res, next) => {
+const getContactById = async (req, res, next) => {
   try {
     const { contactId } = req.params;
-    const contact = await getContactById(contactId);
+    const contact = await Contact.findById(contactId);
     if (!contact) {
       const error = new Error(`Contact with id=${contactId} not found`);
       error.status = 404;
@@ -45,14 +38,14 @@ const getContactByIdController = async (req, res, next) => {
   }
 };
 
-const addContactController = async (req, res, next) => {
+const addContact = async (req, res, next) => {
   try {
-    const { error } = contactsSchema.validate(req.body);
+    const { error } = joiSchema.validate(req.body);
     if (error) {
       error.status = 400;
       throw error;
     }
-    const newContact = await addContact(req.body);
+    const newContact = await Contact.create(req.body);
 
     res.status(201).json({
       status: 'success',
@@ -67,10 +60,10 @@ const addContactController = async (req, res, next) => {
   }
 };
 
-const removeContactController = async (req, res, next) => {
+const removeContactById = async (req, res, next) => {
   try {
     const { contactId } = req.params;
-    const deleteContact = await removeContact(contactId);
+    const deleteContact = await Contact.findByIdAndRemove(contactId);
     if (!deleteContact) {
       const error = new Error(`Contact with id=${contactId} not found`);
       error.status = 404;
@@ -89,15 +82,16 @@ const removeContactController = async (req, res, next) => {
   }
 };
 
-const updateContactController = async (req, res, next) => {
+const updateContactById = async (req, res, next) => {
   try {
-    const { error } = contactsSchema.validate(req.body);
+    const { error } = joiSchema.validate(req.body);
     if (error) {
       error.status = 400;
       throw error;
     }
     const { contactId } = req.params;
-    const updateDataContact = await updateContact(contactId, req.body);
+    const updateDataContact = await Contact.findByIdAndUpdate(contactId, req.body, { new: true });
+
     if (!updateDataContact) {
       const error = new Error(`Contact with id=${contactId} not found`);
       error.status = 404;
@@ -116,10 +110,41 @@ const updateContactController = async (req, res, next) => {
   }
 };
 
+const updateStatusContact = async (req, res, next) => {
+  try {
+    const { error } = statusJoiSchema.validate(req.body);
+    if (error) {
+      error.status = 400;
+      throw error;
+    }
+    const { contactId } = req.params;
+    const { favorite } = req.body;
+
+    const updateStatus = await Contact.findByIdAndUpdate(contactId, { favorite }, { new: true });
+
+    if (!updateStatus) {
+      const error = new Error(`Contact with id=${contactId} not found`);
+      error.status = 404;
+      throw error;
+    }
+    res.json({
+      status: 'success',
+      code: 200,
+      message: `Status favorite = ${req.body.favorite}`,
+      data: {
+        result: updateStatus,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
-  listContactsController,
-  getContactByIdController,
-  addContactController,
-  removeContactController,
-  updateContactController,
+  listContacts,
+  getContactById,
+  addContact,
+  removeContactById,
+  updateContactById,
+  updateStatusContact,
 };
