@@ -31,12 +31,12 @@ const joiRegisterSchema = Joi.object({
 });
 
 const joiLoginSchema = Joi.object({
-  password: Joi.string().min(8).required(),
   email: Joi.string().email().required(),
-})
+  password: Joi.string().min(8).required(),
+});
 
 module.exports = {
   User,
   joiRegisterSchema,
-  joiLoginSchema
+  joiLoginSchema,
 };
