@@ -12,6 +12,7 @@ const register = async (req, res, next) => {
     }
 
     const user = await User.findOne({ email });
+
     if (user) {
       const error = new Error(`Email ${email} in use`);
       error.status = 409;
@@ -22,8 +23,10 @@ const register = async (req, res, next) => {
     res.status(201).json({
       status: 'success',
       code: 201,
-      user: newUser
-      
+      user: {
+        email,
+        subscription: newUser.subscription
+      } 
     });
   } catch (error) {
     next(error);
