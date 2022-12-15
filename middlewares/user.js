@@ -8,7 +8,7 @@ const authUser = async (req, res, next) => {
   const { authorization = '' } = req.headers;
   const [bearer, token] = authorization.split(' ');
   try {
-    if (bearer !== 'Bearer') {
+    if (bearer !== 'Bearer' || !token) {
       const error = new Error('Not authorized');
       error.status = 401;
       throw error;
