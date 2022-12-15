@@ -1,7 +1,7 @@
 const { Schema, model } = require('mongoose');
 
 const Joi = require('joi');
-
+const bcrypt = require('bcryptjs');
 const userSchema = Schema(
   {
     password: {
@@ -15,19 +15,25 @@ const userSchema = Schema(
     },
     subscription: {
       type: String,
-      enum: ["starter", "pro", "business"],
-      default: "starter"
+      enum: ['starter', 'pro', 'business'],
+      default: 'starter',
     },
-    token: String
-  }, { versionKey: false, timestamps: true }
+    token: String,
+  },
+  { versionKey: false, timestamps: true }
 );
+userSchema.methods.comparePassword = function (password) {
+  return bcrypt.compareSync(password, this.password);
+};
 
-const User = model('user', userSchema);
+userSchema.methods.findSubscription = function () {
+  return `${this.subscription}`;
+};
 
 const joiRegisterSchema = Joi.object({
   password: Joi.string().min(8).required(),
   email: Joi.string().email().required(),
-  subscription: Joi.string().valid("starter", "pro", "business"),
+  subscription: Joi.string().valid('starter', 'pro', 'business'),
 });
 
 const joiLoginSchema = Joi.object({
@@ -35,8 +41,15 @@ const joiLoginSchema = Joi.object({
   password: Joi.string().min(8).required(),
 });
 
+const joiSubscriptionSchema = Joi.object({
+  subscription: Joi.string().valid('starter', 'pro', 'business'),
+});
+
+const User = model('user', userSchema);
+
 module.exports = {
   User,
   joiRegisterSchema,
   joiLoginSchema,
+  joiSubscriptionSchema,
 };
