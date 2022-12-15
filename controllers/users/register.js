@@ -25,8 +25,8 @@ const register = async (req, res, next) => {
       code: 201,
       user: {
         email,
-        subscription: newUser.subscription
-      } 
+        subscription: newUser.subscription,
+      },
     });
   } catch (error) {
     next(error);
