@@ -1,5 +1,5 @@
 const { User, verifyEmailSchema } = require('../../models/user');
-const { sendEmail } = require('../../helpers');
+const { sendEmail } = require('../../services');
 
 const resendVerificationEmail = async (req, res, next) => {
   try {
