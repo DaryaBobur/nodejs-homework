@@ -2,6 +2,8 @@ const { User, joiRegisterSchema } = require('../../models/user');
 
 const bcrypt = require('bcryptjs');
 const gravatar = require("gravatar");
+const { v4 } = require('uuid');
+const {sendEmail} = require('../../helpers');
 
 const register = async (req, res, next) => {
   try {
@@ -22,7 +24,17 @@ const register = async (req, res, next) => {
 
     const hashPassword = bcrypt.hashSync(password, bcrypt.genSaltSync(10));
     const avatarURL = gravatar.url(email);
-    const newUser = await User.create({ email, avatarURL, password: hashPassword });
+    const verificationToken = v4();
+
+    const newUser = await User.create({ email, avatarURL, password: hashPassword, verificationToken });
+    const mail = {
+      to: email,
+      subject: "Confirm your email",
+      html: `<a target="_blank" 
+      href="http://localhost:3000/api/users/verify/${verificationToken}">Confirm your email></a>`
+    };
+    await sendEmail(mail);
+    
     res.status(201).json({
       status: 'success',
       code: 201,
@@ -30,6 +42,7 @@ const register = async (req, res, next) => {
         email,
         avatarURL,
         subscription: newUser.subscription,
+        verificationToken
       },
     });
   } catch (error) {
