@@ -15,4 +15,8 @@ router.patch('/:contactId/users', ctrl.updateSubscriptionUser);
 
 router.patch('/avatars', user, uploadImg.single("avatar"), ctrl.updateAvatar);
 
+router.get('/verify/:verificationToken', ctrl.verifyEmailUser);
+
+router.post('/verify', ctrl.resendVerificationEmail);
+
 module.exports = router;
